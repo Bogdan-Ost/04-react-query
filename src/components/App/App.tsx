@@ -3,18 +3,17 @@ import css from "./App.module.css";
 import SearchBar from "../SearchBar/SearchBar";
 import MovieGrid from "../MovieGrid/MovieGrid";
 import { fetchMovies } from "../../services/movieService";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { Movie } from "../../types/movie";
 import Loader from "../Loader/Loader";
 import ErrorMessage from "../ErrorMessage/ErrorMessage";
 import MovieModal from "../MovieModal/MovieModal";
 import toast, { Toaster } from "react-hot-toast";
+import { useQuery } from "@tanstack/react-query";
 
 export default function App() {
-  const [movies, setMovies] = useState<Movie[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isError, setIsError] = useState(false);
   const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const openModal = (movie: Movie) => {
     setSelectedMovie(movie);
@@ -23,29 +22,31 @@ export default function App() {
   const closeModal = () => {
     setSelectedMovie(null);
   };
+  const {
+    data = [],
+    isError,
+    isFetched,
+  } = useQuery({
+    queryKey: ["person", searchQuery],
+    queryFn: () => fetchMovies(searchQuery),
+    enabled: searchQuery.length > 0,
+  });
 
-  const handleSearch = async (query: string) => {
-    try {
-      setIsLoading(true);
-      setIsError(false);
-      const newMovies = await fetchMovies(query);
-      if (newMovies.length === 0) {
-        toast.error("No movies found for your request.");
-        return;
-      }
-      setMovies(newMovies);
-    } catch {
-      setIsError(true);
-    } finally {
-      setIsLoading(false);
-    }
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
   };
+  useEffect(() => {
+    if (searchQuery && data && data.length === 0) {
+      toast.error("No movies found for your request.");
+    }
+  }, [data, searchQuery]);
+
   return (
     <div className={css.app}>
       <SearchBar onSubmit={handleSearch} />
-      {isLoading && <Loader />}
+      {isFetched && <Loader />}
       {isError && <ErrorMessage />}
-      {movies.length > 0 && <MovieGrid movies={movies} onSelect={openModal} />}
+      {data.length > 0 && <MovieGrid movies={data} onSelect={openModal} />}
       {selectedMovie && (
         <MovieModal movie={selectedMovie} onClose={closeModal} />
       )}
