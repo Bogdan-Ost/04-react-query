@@ -1,4 +1,3 @@
-// import { useState } from "react";
 import css from "./App.module.css";
 import SearchBar from "../SearchBar/SearchBar";
 import MovieGrid from "../MovieGrid/MovieGrid";
@@ -24,7 +23,7 @@ export default function App() {
   const closeModal = () => {
     setSelectedMovie(null);
   };
-  const { data, isError, isFetched } = useQuery({
+  const { data, isError, isLoading } = useQuery({
     queryKey: ["person", searchQuery, currentPage],
     queryFn: () => fetchMovies(searchQuery, currentPage),
     enabled: searchQuery.trim().length > 0,
@@ -38,18 +37,18 @@ export default function App() {
       toast.error("No movies found for your request.");
     }
   }, [data, searchQuery]);
-
+  const totalPages = data?.total_pages ?? 0;
   return (
     <div className={css.app}>
       <SearchBar onSubmit={handleSearch} />
-      {isFetched && <Loader />}
+      {isLoading && <Loader />}
       {isError && <ErrorMessage />}
       {data?.results && data?.results?.length > 0 && (
         <MovieGrid movies={data?.results ?? []} onSelect={openModal} />
       )}
-      {data && data.total_pages > 1 && (
+      {totalPages > 1 && (
         <ReactPaginate
-          pageCount={data?.total_pages ?? 0}
+          pageCount={totalPages}
           pageRangeDisplayed={5}
           marginPagesDisplayed={1}
           onPageChange={({ selected }) => setCurrentPage(selected + 1)}
