@@ -38,6 +38,10 @@ export default function App() {
     }
   }, [data, searchQuery]);
   const totalPages = data?.total_pages ?? 0;
+
+  const Paginate =
+    (ReactPaginate as unknown as { default: React.FC<any> }).default ||
+    ReactPaginate;
   return (
     <div className={css.app}>
       <SearchBar onSubmit={handleSearch} />
@@ -47,11 +51,13 @@ export default function App() {
         <MovieGrid movies={data?.results ?? []} onSelect={openModal} />
       )}
       {totalPages > 1 && (
-        <ReactPaginate
+        <Paginate
           pageCount={totalPages}
           pageRangeDisplayed={5}
           marginPagesDisplayed={1}
-          onPageChange={({ selected }) => setCurrentPage(selected + 1)}
+          onPageChange={({ selected }: { selected: number }) =>
+            setCurrentPage(selected + 1)
+          }
           forcePage={currentPage - 1}
           containerClassName={css.pagination}
           activeClassName={css.active}
