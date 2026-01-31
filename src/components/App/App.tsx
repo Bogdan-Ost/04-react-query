@@ -32,6 +32,7 @@ export default function App() {
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
+    setCurrentPage(1);
   };
   useEffect(() => {
     if (searchQuery && data && data.results.length === 0) {
