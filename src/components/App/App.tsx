@@ -8,7 +8,7 @@ import Loader from "../Loader/Loader";
 import ErrorMessage from "../ErrorMessage/ErrorMessage";
 import MovieModal from "../MovieModal/MovieModal";
 import toast, { Toaster } from "react-hot-toast";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import ReactPaginate from "react-paginate";
 
 export default function App() {
@@ -27,6 +27,7 @@ export default function App() {
     queryKey: ["person", searchQuery, currentPage],
     queryFn: () => fetchMovies(searchQuery, currentPage),
     enabled: searchQuery.trim().length > 0,
+    placeholderData: keepPreviousData,
   });
 
   const handleSearch = (query: string) => {

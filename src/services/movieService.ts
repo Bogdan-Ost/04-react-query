@@ -14,7 +14,7 @@ interface Settings {
   };
 }
 
-interface fetchMoviesResponce {
+interface fetchMoviesResponse {
   results: Movie[];
   total_pages: number;
 }
@@ -22,7 +22,7 @@ interface fetchMoviesResponce {
 export const fetchMovies = async (
   query: string,
   page: number,
-): Promise<fetchMoviesResponce> => {
+): Promise<fetchMoviesResponse> => {
   const settings: Settings = {
     params: {
       query,
@@ -32,6 +32,6 @@ export const fetchMovies = async (
       Authorization: `Bearer ${API_KEY}`,
     },
   };
-  const { data } = await axios.get<fetchMoviesResponce>(BASE_URL, settings);
+  const { data } = await axios.get<fetchMoviesResponse>(BASE_URL, settings);
   return data;
 };
